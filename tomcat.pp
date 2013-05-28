@@ -1,7 +1,6 @@
 Exec {
   path       => "/bin:/sbin:/usr/bin:/usr/sbin",
-  #logoutput => "on_failure"
-  logoutput  => true
+  logoutput => "on_failure"
 }
 
 exec{"Download JDK":
@@ -15,7 +14,6 @@ file{ '/root/java':
 }
 
 exec{"Extract JDK tar":
-  # check this
   cwd     => '/root/java',
   command => "tar zxvf /tmp/jdk-7u21-linux-i586.tar.gz",
   creates => '/root/java/jdk1.7.0_21',
@@ -43,7 +41,6 @@ file{'/root/tomcat6':
 }
 
 exec{ "Extract Tomcat tar":
-  # check this
   cwd     => '/root/tomcat6',
   command => "tar zxvf /tmp/apache-tomcat-6.0.37.tar.gz",
   creates => '/root/tomcat6/bin'
