@@ -3,20 +3,24 @@ Exec {
   logoutput => "on_failure"
 }
 
+$jdkarchivename = "jdk-7u21-linux-i586.tar.gz"
+$jdkdirname = "jdk1.7.0_21"
+$jdkhome = "/root/java"
+
 exec{"Download JDK":
   cwd     => '/tmp',
-  command => "wget http://uni-smr.ac.ru/archive/dev/java/SDKs/sun/j2se/7/jdk-7u21-linux-i586.tar.gz",
-  creates => '/tmp/jdk-7u21-linux-i586.tar.gz',
+  command => "wget http://uni-smr.ac.ru/archive/dev/java/SDKs/sun/j2se/7/${jdkarchivename}",
+  creates => "/tmp/${jdkarchivename}",
 }
 
-file{ '/root/java':
+file{ $jdkhome:
   ensure => "directory"
 }
 
 exec{"Extract JDK tar":
-  cwd     => '/root/java',
-  command => "tar zxvf /tmp/jdk-7u21-linux-i586.tar.gz",
-  creates => '/root/java/jdk1.7.0_21',
+  cwd     => $jdkhome,
+  command => "tar zxvf /tmp/${jdkarchivename}",
+  creates => "${jdkhome}/${jdkdirname}",
 }
 
 # Save env vars for JDK
@@ -30,21 +34,24 @@ file{'/etc/profile.d/java.sh':
     mode   => '644'
 }
 
+$tomcatname = "apache-tomcat-6.0.37"
+$tomcathome = "/root/tomcat6"
+
 exec{"Download Tomcat":
   cwd     => '/tmp',
-  command => "wget http://mirrors.besplatnyeprogrammy.ru/apache/tomcat/tomcat-6/v6.0.37/bin/apache-tomcat-6.0.37.tar.gz",
-  creates => '/tmp/apache-tomcat-6.0.37.tar.gz'
+  command => "wget http://mirrors.besplatnyeprogrammy.ru/apache/tomcat/tomcat-6/v6.0.37/bin/${tomcatname}.tar.gz",
+  creates => "/tmp/${tomcatname}.tar.gz"
 }
 
-file{'/root/tomcat6':
+file{$tomcathome:
   ensure => "directory"
 }
 
 exec{ "Extract Tomcat tar":
-  cwd     => '/root/tomcat6',
-  command => "tar zxvf /tmp/apache-tomcat-6.0.37.tar.gz",
-  creates => '/root/tomcat6/bin'
-} 
+  cwd     => $tomcathome,
+  command => "tar zxvf /tmp/${tomcatname}",
+  creates => "${tomcathome}/${tomcatname}"
+}
 
 # Save env vars for tomcat
 file { '/etc/profile.d/catalina.sh':
@@ -58,7 +65,7 @@ file { '/etc/profile.d/catalina.sh':
 }
 
 exec{ "Start Tomcat":
-  command => "/root/tomcat6/apache-tomcat-6.0.37/bin/startup.sh"
+  command => "${tomcathome}/${tomcatname}/bin/startup.sh"
 }
 
-Exec["Download JDK"] -> File['/root/java'] -> Exec["Extract JDK tar"] -> File['/etc/profile.d/java.sh'] -> Exec["Download Tomcat"] -> File['/root/tomcat6'] -> Exec["Extract Tomcat tar"] -> File['/etc/profile.d/catalina.sh'] -> Exec["Start Tomcat"] 
+Exec["Download JDK"] -> File[$jdkhome] -> Exec["Extract JDK tar"] -> File['/etc/profile.d/java.sh'] -> Exec["Download Tomcat"] -> File[$tomcathome] -> Exec["Extract Tomcat tar"] -> File['/etc/profile.d/catalina.sh'] -> Exec["Start Tomcat"] 
